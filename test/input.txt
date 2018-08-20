@@ -87,7 +87,9 @@
   delete 4
   list
 
-  # listing indexes get updated on next request
+  # listing indexes get updated on next 2 requests
+  delete 1
+  list
   delete 1
   list
 
