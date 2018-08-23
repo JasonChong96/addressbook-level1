@@ -70,8 +70,8 @@ public class AddressBook {
     private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s";
     private static final String MESSAGE_INVALID_FILE = "The given file name [%1$s] is not a valid file name!";
     private static final String MESSAGE_INVALID_PROGRAM_ARGS = "Too many parameters! Correct program argument format:"
-                                                            + LS + "\tjava AddressBook"
-                                                            + LS + "\tjava AddressBook [custom storage file path]";
+            + LS + "\tjava AddressBook"
+            + LS + "\tjava AddressBook [custom storage file path]";
     private static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The person index provided is invalid";
     private static final String MESSAGE_INVALID_STORAGE_FILE_CONTENT = "Storage file has invalid content";
     private static final String MESSAGE_PERSON_NOT_IN_ADDRESSBOOK = "Person could not be found in address book";
@@ -89,18 +89,18 @@ public class AddressBook {
     private static final String PERSON_DATA_PREFIX_EMAIL = "e/";
 
     private static final String PERSON_STRING_REPRESENTATION = "%1$s " // name
-                                                            + PERSON_DATA_PREFIX_PHONE + "%2$s " // phone
-                                                            + PERSON_DATA_PREFIX_EMAIL + "%3$s"; // email
+            + PERSON_DATA_PREFIX_PHONE + "%2$s " // phone
+            + PERSON_DATA_PREFIX_EMAIL + "%3$s"; // email
     private static final String COMMAND_ADD_WORD = "add";
     private static final String COMMAND_ADD_DESC = "Adds a person to the address book.";
     private static final String COMMAND_ADD_PARAMETERS = "NAME "
-                                                      + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER "
-                                                      + PERSON_DATA_PREFIX_EMAIL + "EMAIL";
+            + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER "
+            + PERSON_DATA_PREFIX_EMAIL + "EMAIL";
     private static final String COMMAND_ADD_EXAMPLE = COMMAND_ADD_WORD + " John Doe p/98765432 e/johnd@gmail.com";
 
     private static final String COMMAND_FIND_WORD = "find";
     private static final String COMMAND_FIND_DESC = "Finds all persons whose names contain any of the specified "
-                                        + "keywords (case-sensitive) and displays them as a list with index numbers.";
+            + "keywords (case-sensitive) and displays them as a list with index numbers.";
     private static final String COMMAND_FIND_PARAMETERS = "KEYWORD [MORE_KEYWORDS]";
     private static final String COMMAND_FIND_EXAMPLE = COMMAND_FIND_WORD + " alice bob charlie";
 
@@ -110,7 +110,7 @@ public class AddressBook {
 
     private static final String COMMAND_DELETE_WORD = "delete";
     private static final String COMMAND_DELETE_DESC = "Deletes a person identified by the index number used in "
-                                                    + "the last find/list call.";
+            + "the last find/list call.";
     private static final String COMMAND_DELETE_PARAMETER = "INDEX";
     private static final String COMMAND_DELETE_EXAMPLE = COMMAND_DELETE_WORD + " 1";
 
@@ -127,16 +127,6 @@ public class AddressBook {
     private static final String COMMAND_EXIT_EXAMPLE = COMMAND_EXIT_WORD;
 
     private static final String DIVIDER = "===================================================";
-
-
-    /* We use a HashMap to store the details of a single person.
-     * The Enum given below are the keys for the different data elements of a person
-     * used by the internal HashMap<PersonProperty, String> storage format.
-     * For example, a person's name is stored as the 0th element in the array.
-     */
-    private enum PersonProperty  {NAME, EMAIL, PHONE};
-
-
     /**
      * Offset required to convert between 1-indexing and 0-indexing.COMMAND_
      */
@@ -146,7 +136,6 @@ public class AddressBook {
      * If the first non-whitespace character in a user's input line is this, that line will be ignored.
      */
     private static final char INPUT_COMMENT_MARKER = '#';
-
     /*
      * This variable is declared for the whole class (instead of declaring it
      * inside the readUserCommand() method to facilitate automated testing using
@@ -154,6 +143,10 @@ public class AddressBook {
      * text file will be processed.
      */
     private static final Scanner SCANNER = new Scanner(System.in);
+    /**
+     * List of all persons in the address book.
+     */
+    private static final ArrayList<Map<PersonProperty, String>> ALL_PERSONS = new ArrayList<>();
 
     /*
      * NOTE : =============================================================================================
@@ -164,35 +157,17 @@ public class AddressBook {
      * such as interface inheritance.
      * ====================================================================================================
      */
-
-    /**
-     * List of all persons in the address book.
-     */
-    private static final ArrayList<Map<PersonProperty, String>> ALL_PERSONS = new ArrayList<>();
-
     /**
      * Stores the most recent list of persons shown to the user as a result of a user command.
      * This is a subset of the full list. Deleting persons in the pull list does not delete
      * those persons from this list.
      */
     private static ArrayList<Map<PersonProperty, String>> latestPersonListingView = getAllPersonsInAddressBook(); // initial
-    // view is of all
-
     /**
      * The path to the file used for storing person data.
      */
     private static String storageFilePath;
-
-    /*
-     * NOTE : =============================================================
-     * Notice how this method solves the whole problem at a very high level.
-     * We can understand the high-level logic of the program by reading this
-     * method alone.
-     * If the reader wants a deeper understanding of the solution, she can go
-     * to the next level of abstraction by reading the methods that are
-     * referenced by the high-level method below.
-     * ====================================================================
-     */
+    // view is of all
 
     public static void main(String[] args) {
         showWelcomeMessage();
@@ -208,9 +183,12 @@ public class AddressBook {
 
     /*
      * NOTE : =============================================================
-     * The method header comment can be omitted if the method is trivial
-     * and the header comment is going to be almost identical to the method
-     * signature anyway.
+     * Notice how this method solves the whole problem at a very high level.
+     * We can understand the high-level logic of the program by reading this
+     * method alone.
+     * If the reader wants a deeper understanding of the solution, she can go
+     * to the next level of abstraction by reading the methods that are
+     * referenced by the high-level method below.
      * ====================================================================
      */
 
@@ -218,8 +196,23 @@ public class AddressBook {
         showToUser(DIVIDER, DIVIDER, VERSION, MESSAGE_WELCOME, DIVIDER);
     }
 
+    /*
+     * NOTE : =============================================================
+     * The method header comment can be omitted if the method is trivial
+     * and the header comment is going to be almost identical to the method
+     * signature anyway.
+     * ====================================================================
+     */
+
     private static void showResultToUser(String result) {
         showToUser(result, DIVIDER);
+    }
+
+    /**
+     * Echoes the user input back to the user.
+     */
+    private static void echoUserCommand(String userCommand) {
+        showToUser("[Command entered:" + userCommand + "]");
     }
 
     /*
@@ -229,13 +222,6 @@ public class AddressBook {
      * In the method below, '@param userInput' comment has been omitted.
      * ====================================================================
      */
-
-    /**
-     * Echoes the user input back to the user.
-     */
-    private static void echoUserCommand(String userCommand) {
-        showToUser("[Command entered:" + userCommand + "]");
-    }
 
     /**
      * Processes the program main method run arguments.
@@ -254,7 +240,7 @@ public class AddressBook {
             setupGivenFileForStorage(args[0]);
         }
 
-        if(args.length == 0) {
+        if (args.length == 0) {
             setupDefaultFileForStorage();
         }
     }
@@ -339,6 +325,36 @@ public class AddressBook {
         initialiseAddressBookModel(loadPersonsFromFile(storageFilePath));
     }
 
+    /**
+     * Executes the command as specified by the {@code userInputString}
+     *
+     * @param userInputString raw input from user
+     * @return feedback about how the command was executed
+     */
+    private static String executeCommand(String userInputString) {
+        final String[] commandTypeAndParams = splitCommandWordAndArgs(userInputString);
+        final String commandType = commandTypeAndParams[0];
+        final String commandArgs = commandTypeAndParams[1];
+        switch (commandType) {
+            case COMMAND_ADD_WORD:
+                return executeAddPerson(commandArgs);
+            case COMMAND_FIND_WORD:
+                return executeFindPersons(commandArgs);
+            case COMMAND_LIST_WORD:
+                return executeListAllPersonsInAddressBook();
+            case COMMAND_DELETE_WORD:
+                return executeDeletePerson(commandArgs);
+            case COMMAND_CLEAR_WORD:
+                return executeClearAddressBook();
+            case COMMAND_HELP_WORD:
+                return getUsageInfoForAllCommands();
+            case COMMAND_EXIT_WORD:
+                executeExitProgramRequest();
+            default:
+                return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
+        }
+    }
+
 
     /*
      * ===========================================
@@ -347,43 +363,13 @@ public class AddressBook {
      */
 
     /**
-     * Executes the command as specified by the {@code userInputString}
-     *
-     * @param userInputString  raw input from user
-     * @return  feedback about how the command was executed
-     */
-    private static String executeCommand(String userInputString) {
-        final String[] commandTypeAndParams = splitCommandWordAndArgs(userInputString);
-        final String commandType = commandTypeAndParams[0];
-        final String commandArgs = commandTypeAndParams[1];
-        switch (commandType) {
-        case COMMAND_ADD_WORD:
-            return executeAddPerson(commandArgs);
-        case COMMAND_FIND_WORD:
-            return executeFindPersons(commandArgs);
-        case COMMAND_LIST_WORD:
-            return executeListAllPersonsInAddressBook();
-        case COMMAND_DELETE_WORD:
-            return executeDeletePerson(commandArgs);
-        case COMMAND_CLEAR_WORD:
-            return executeClearAddressBook();
-        case COMMAND_HELP_WORD:
-            return getUsageInfoForAllCommands();
-        case COMMAND_EXIT_WORD:
-            executeExitProgramRequest();
-        default:
-            return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
-        }
-    }
-
-    /**
      * Splits raw user input into command word and command arguments string
      *
-     * @return  size 2 array; first element is the command type and second element is the arguments string
+     * @return size 2 array; first element is the command type and second element is the arguments string
      */
     private static String[] splitCommandWordAndArgs(String rawUserInput) {
-        final String[] split =  rawUserInput.trim().split("\\s+", 2);
-        return split.length == 2 ? split : new String[] { split[0] , "" }; // else case: no parameters
+        final String[] split = rawUserInput.trim().split("\\s+", 2);
+        return split.length == 2 ? split : new String[]{split[0], ""}; // else case: no parameters
     }
 
     /**
@@ -421,9 +407,9 @@ public class AddressBook {
     /**
      * Constructs a feedback message for a successful add person command execution.
      *
-     * @see #executeAddPerson(String)
      * @param addedPerson person who was successfully added
      * @return successful add person feedback message
+     * @see #executeAddPerson(String)
      */
     private static String getMessageForSuccessfulAddPerson(Map<PersonProperty, String> addedPerson) {
         return String.format(MESSAGE_ADDED,
@@ -497,7 +483,7 @@ public class AddressBook {
         }
         final Map<PersonProperty, String> targetInModel = getPersonByLastVisibleIndex(targetVisibleIndex);
         return deletePersonFromAddressBook(targetInModel) ? getMessageForSuccessfulDelete(targetInModel) // success
-                                                          : MESSAGE_PERSON_NOT_IN_ADDRESSBOOK; // not found
+                : MESSAGE_PERSON_NOT_IN_ADDRESSBOOK; // not found
     }
 
     /**
@@ -538,9 +524,9 @@ public class AddressBook {
     /**
      * Constructs a feedback message for a successful delete person command execution.
      *
-     * @see #executeDeletePerson(String)
      * @param deletedPerson successfully deleted
      * @return successful delete person feedback message
+     * @see #executeDeletePerson(String)
      */
     private static String getMessageForSuccessfulDelete(Map<PersonProperty, String> deletedPerson) {
         return String.format(MESSAGE_DELETE_PERSON_SUCCESS, getMessageForFormattedPersonData(deletedPerson));
@@ -574,12 +560,6 @@ public class AddressBook {
         exitProgram();
     }
 
-    /*
-     * ===========================================
-     *               UI LOGIC
-     * ===========================================
-     */
-
     /**
      * Prompts for the command and reads the text entered by the user.
      * Ignores lines with first non-whitespace char equal to {@link #INPUT_COMMENT_MARKER} (considered comments)
@@ -596,12 +576,11 @@ public class AddressBook {
         return inputLine;
     }
 
-   /*
-    * NOTE : =============================================================
-    * Note how the method below uses Java 'Varargs' feature so that the
-    * method can accept a varying number of message parameters.
-    * ====================================================================
-    */
+    /*
+     * ===========================================
+     *               UI LOGIC
+     * ===========================================
+     */
 
     /**
      * Shows a message to the user
@@ -612,10 +591,16 @@ public class AddressBook {
         }
     }
 
+    /*
+     * NOTE : =============================================================
+     * Note how the method below uses Java 'Varargs' feature so that the
+     * method can accept a varying number of message parameters.
+     * ====================================================================
+     */
+
     /**
      * Shows the list of persons to the user.
      * The list will be indexed, starting from 1.
-     *
      */
     private static void showToUser(ArrayList<Map<PersonProperty, String>> persons) {
         String listAsString = getDisplayString(persons);
@@ -632,8 +617,8 @@ public class AddressBook {
             final Map<PersonProperty, String> person = persons.get(i);
             final int displayIndex = i + DISPLAYED_INDEX_OFFSET;
             messageAccumulator.append('\t')
-                              .append(getIndexedPersonListElementMessage(displayIndex, person))
-                              .append(LS);
+                    .append(getIndexedPersonListElementMessage(displayIndex, person))
+                    .append(LS);
         }
         return messageAccumulator.toString();
     }
@@ -642,7 +627,7 @@ public class AddressBook {
      * Constructs a prettified listing element message to represent a person and their data.
      *
      * @param visibleIndex visible index for this listing
-     * @param person to show
+     * @param person       to show
      * @return formatted listing message with index
      */
     private static String getIndexedPersonListElementMessage(int visibleIndex, Map<PersonProperty, String> person) {
@@ -677,15 +662,8 @@ public class AddressBook {
      * @return the actual person object in the last shown person listing
      */
     private static Map<PersonProperty, String> getPersonByLastVisibleIndex(int lastVisibleIndex) {
-       return latestPersonListingView.get(lastVisibleIndex - DISPLAYED_INDEX_OFFSET);
+        return latestPersonListingView.get(lastVisibleIndex - DISPLAYED_INDEX_OFFSET);
     }
-
-
-    /*
-     * ===========================================
-     *             STORAGE LOGIC
-     * ===========================================
-     */
 
     /**
      * Creates storage file if it does not exist. Shows feedback to user.
@@ -708,6 +686,13 @@ public class AddressBook {
             exitProgram();
         }
     }
+
+
+    /*
+     * ===========================================
+     *             STORAGE LOGIC
+     * ===========================================
+     */
 
     /**
      * Converts contents of a file into a list of persons.
@@ -759,13 +744,6 @@ public class AddressBook {
         }
     }
 
-
-    /*
-     * ================================================================================
-     *        INTERNAL ADDRESS BOOK DATA METHODS
-     * ================================================================================
-     */
-
     /**
      * Adds a person to the address book. Saves changes to storage file.
      *
@@ -775,6 +753,13 @@ public class AddressBook {
         ALL_PERSONS.add(person);
         savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
     }
+
+
+    /*
+     * ================================================================================
+     *        INTERNAL ADDRESS BOOK DATA METHODS
+     * ================================================================================
+     */
 
     /**
      * Deletes the specified person from the addressbook if it is inside. Saves any changes to storage file.
@@ -815,13 +800,6 @@ public class AddressBook {
         ALL_PERSONS.addAll(persons);
     }
 
-
-    /*
-     * ===========================================
-     *             PERSON METHODS
-     * ===========================================
-     */
-
     /**
      * Returns the given person's name
      *
@@ -830,6 +808,13 @@ public class AddressBook {
     private static String getNameFromPerson(Map<PersonProperty, String> person) {
         return person.get(PersonProperty.NAME);
     }
+
+
+    /*
+     * ===========================================
+     *             PERSON METHODS
+     * ===========================================
+     */
 
     /**
      * Returns given person's phone number
@@ -852,7 +837,7 @@ public class AddressBook {
     /**
      * Creates a person from the given data.
      *
-     * @param name of person
+     * @param name  of person
      * @param phone without data prefix
      * @param email without data prefix
      * @return constructed person
@@ -890,19 +875,12 @@ public class AddressBook {
         return encoded;
     }
 
-    /*
-     * NOTE : =============================================================
-     * Note the use of Java's new 'Optional' feature to indicate that
-     * the return value may not always be present.
-     * ====================================================================
-     */
-
     /**
      * Decodes a person from it's supposed string representation.
      *
      * @param encoded string to be decoded
      * @return if cannot decode: empty Optional
-     *         else: Optional containing decoded person
+     * else: Optional containing decoded person
      */
     private static Optional<Map<PersonProperty, String>> decodePersonFromString(String encoded) {
         // check that we can extract the parts of a person from the encoded string
@@ -918,12 +896,19 @@ public class AddressBook {
         return isPersonDataValid(decodedPerson) ? Optional.of(decodedPerson) : Optional.empty();
     }
 
+    /*
+     * NOTE : =============================================================
+     * Note the use of Java's new 'Optional' feature to indicate that
+     * the return value may not always be present.
+     * ====================================================================
+     */
+
     /**
      * Decodes persons from a list of string representations.
      *
      * @param encodedPersons strings to be decoded
      * @return if cannot decode any: empty Optional
-     *         else: Optional containing decoded persons
+     * else: Optional containing decoded persons
      */
     private static Optional<ArrayList<Map<PersonProperty, String>>> decodePersonsFromStrings(ArrayList<String> encodedPersons) {
         final ArrayList<Map<PersonProperty, String>> decodedPersons = new ArrayList<>();
@@ -981,7 +966,7 @@ public class AddressBook {
             return removePrefixSign(encoded.substring(indexOfPhonePrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_PHONE);
 
-        // phone is middle arg, target is from own prefix to next prefix
+            // phone is middle arg, target is from own prefix to next prefix
         } else {
             return removePrefixSign(
                     encoded.substring(indexOfPhonePrefix, indexOfEmailPrefix).trim(),
@@ -1004,7 +989,7 @@ public class AddressBook {
             return removePrefixSign(encoded.substring(indexOfEmailPrefix, encoded.length()).trim(),
                     PERSON_DATA_PREFIX_EMAIL);
 
-        // email is middle arg, target is from own prefix to next prefix
+            // email is middle arg, target is from own prefix to next prefix
         } else {
             return removePrefixSign(
                     encoded.substring(indexOfEmailPrefix, indexOfPhonePrefix).trim(),
@@ -1023,14 +1008,6 @@ public class AddressBook {
                 && isPersonEmailValid(getEmailFromPerson(person));
     }
 
-    /*
-     * NOTE : =============================================================
-     * Note the use of 'regular expressions' in the method below.
-     * Regular expressions can be very useful in checking if a a string
-     * follows a specific format.
-     * ====================================================================
-     */
-
     /**
      * Returns true if the given string as a legal person name
      *
@@ -1040,6 +1017,14 @@ public class AddressBook {
         return name.matches("(\\w|\\s)+");  // name is nonempty mixture of alphabets and whitespace
         //TODO: implement a more permissive validation
     }
+
+    /*
+     * NOTE : =============================================================
+     * Note the use of 'regular expressions' in the method below.
+     * Regular expressions can be very useful in checking if a a string
+     * follows a specific format.
+     * ====================================================================
+     */
 
     /**
      * Returns true if the given string as a legal person phone number
@@ -1062,14 +1047,9 @@ public class AddressBook {
         //TODO: implement a more permissive validation
     }
 
-
-    /*
-     * ===============================================
-     *         COMMAND HELP INFO FOR USERS
-     * ===============================================
+    /**
+     * Returns usage info for all commands
      */
-
-    /** Returns usage info for all commands */
     private static String getUsageInfoForAllCommands() {
         return getUsageInfoForAddCommand() + LS
                 + getUsageInfoForFindCommand() + LS
@@ -1080,49 +1060,81 @@ public class AddressBook {
                 + getUsageInfoForHelpCommand();
     }
 
-    /** Returns the string for showing 'add' command usage instruction */
+
+    /*
+     * ===============================================
+     *         COMMAND HELP INFO FOR USERS
+     * ===============================================
+     */
+
+    /**
+     * Returns the string for showing 'add' command usage instruction
+     */
     private static String getUsageInfoForAddCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_ADD_WORD, COMMAND_ADD_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_ADD_PARAMETERS) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_ADD_EXAMPLE) + LS;
     }
 
-    /** Returns the string for showing 'find' command usage instruction */
+    /**
+     * Returns the string for showing 'find' command usage instruction
+     */
     private static String getUsageInfoForFindCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_FIND_WORD, COMMAND_FIND_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_FIND_PARAMETERS) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_FIND_EXAMPLE) + LS;
     }
 
-    /** Returns the string for showing 'delete' command usage instruction */
+    /**
+     * Returns the string for showing 'delete' command usage instruction
+     */
     private static String getUsageInfoForDeleteCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_DELETE_WORD, COMMAND_DELETE_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_DELETE_PARAMETER) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_DELETE_EXAMPLE) + LS;
     }
 
-    /** Returns string for showing 'clear' command usage instruction */
+    /**
+     * Returns string for showing 'clear' command usage instruction
+     */
     private static String getUsageInfoForClearCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_CLEAR_WORD, COMMAND_CLEAR_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_CLEAR_EXAMPLE) + LS;
     }
 
-    /** Returns the string for showing 'view' command usage instruction */
+    /**
+     * Returns the string for showing 'view' command usage instruction
+     */
     private static String getUsageInfoForViewCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_LIST_WORD, COMMAND_LIST_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_LIST_EXAMPLE) + LS;
     }
 
-    /** Returns string for showing 'help' command usage instruction */
+    /**
+     * Returns string for showing 'help' command usage instruction
+     */
     private static String getUsageInfoForHelpCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_HELP_WORD, COMMAND_HELP_DESC)
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_HELP_EXAMPLE);
     }
 
-    /** Returns the string for showing 'exit' command usage instruction */
+    /**
+     * Returns the string for showing 'exit' command usage instruction
+     */
     private static String getUsageInfoForExitCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_EXIT_WORD, COMMAND_EXIT_DESC)
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
+    }
+
+    /**
+     * Removes sign(p/, d/, etc) from parameter string
+     *
+     * @param s    Parameter as a string
+     * @param sign Parameter sign to be removed
+     * @return string without the sign
+     */
+    private static String removePrefixSign(String s, String sign) {
+        return s.replace(sign, "");
     }
 
 
@@ -1133,17 +1145,6 @@ public class AddressBook {
      */
 
     /**
-     * Removes sign(p/, d/, etc) from parameter string
-     *
-     * @param s  Parameter as a string
-     * @param sign  Parameter sign to be removed
-     * @return  string without the sign
-     */
-    private static String removePrefixSign(String s, String sign) {
-        return s.replace(sign, "");
-    }
-
-    /**
      * Splits a source string into the list of substrings that were separated by whitespace.
      *
      * @param toSplit source string
@@ -1151,6 +1152,15 @@ public class AddressBook {
      */
     private static ArrayList<String> splitByWhitespace(String toSplit) {
         return new ArrayList<>(Arrays.asList(toSplit.trim().split("\\s+")));
+    }
+
+    /* We use a HashMap to store the details of a single person.
+     * The Enum given below are the keys for the different data elements of a person
+     * used by the internal HashMap<PersonProperty, String> storage format.
+     * For example, a person's name is stored as the 0th element in the array.
+     */
+    private enum PersonProperty {
+        NAME, EMAIL, PHONE
     }
 
 }
