@@ -59,6 +59,7 @@ public class AddressBook {
      * =========================================================================
      */
     private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s";
+    private static final String MESSAGE_EDITED = "Person edited: %1$s, Phone: %2$s, Email: %3$s";
     private static final String MESSAGE_ADDRESSBOOK_CLEARED = "Address book has been cleared!";
     private static final String MESSAGE_COMMAND_HELP = "%1$s: %2$s";
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
@@ -125,6 +126,11 @@ public class AddressBook {
     private static final String COMMAND_EXIT_WORD = "exit";
     private static final String COMMAND_EXIT_DESC = "Exits the program.";
     private static final String COMMAND_EXIT_EXAMPLE = COMMAND_EXIT_WORD;
+
+    private static final String COMMAND_EDIT_WORD = "edit";
+    private static final String COMMAND_EDIT_DESC = "Edits a person identified by the index number used in the last " +
+            "find/list call.";
+    private static final String COMMAND_EDIT_EXAMPLE = COMMAND_EDIT_WORD + " 1 p/91234567 e/example@mail.com";
 
     private static final String DIVIDER = "===================================================";
     /**
@@ -350,6 +356,8 @@ public class AddressBook {
             return getUsageInfoForAllCommands();
         case COMMAND_EXIT_WORD:
             executeExitProgramRequest();
+        case COMMAND_EDIT_WORD:
+            return executeEditPerson(commandArgs);
         default:
             return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
         }
@@ -404,6 +412,19 @@ public class AddressBook {
         return getMessageForSuccessfulAddPerson(personToAdd);
     }
 
+    private static String executeEditPerson(String commandArgs) {
+        if (!isEditPersonArgsValid(commandArgs)) {
+            return getMessageForInvalidCommandInput(COMMAND_EDIT_WORD, getUsageInfoForEditCommand());
+        }
+        final int targetVisibleIndex = extractTargetIndexFromEditPersonArgs(commandArgs);
+        if (!isDisplayIndexValidForLastPersonListingView(targetVisibleIndex)) {
+            return MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
+        }
+        final Map<PersonProperty, String> targetInModel = getPersonByLastVisibleIndex(targetVisibleIndex);
+        editPerson(targetInModel, commandArgs.trim().split(" "));
+        return getMessageForSuccessfulEditPerson(targetInModel);
+    }
+
     /**
      * Constructs a feedback message for a successful add person command execution.
      *
@@ -413,6 +434,11 @@ public class AddressBook {
      */
     private static String getMessageForSuccessfulAddPerson(Map<PersonProperty, String> addedPerson) {
         return String.format(MESSAGE_ADDED,
+                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
+    }
+
+    private static String getMessageForSuccessfulEditPerson(Map<PersonProperty, String> addedPerson) {
+        return String.format(MESSAGE_EDITED,
                 getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
     }
 
@@ -501,6 +527,27 @@ public class AddressBook {
         }
     }
 
+    private static boolean isEditPersonArgsValid(String rawArgs) {
+        String[] args = rawArgs.trim().split(" ");
+        if (args.length < 2) {
+            return false;
+        }
+        try {
+            final int extractedIndex = Integer.parseInt(args[0]); // use standard libraries to parse
+            if (extractedIndex < DISPLAYED_INDEX_OFFSET) {
+                return false;
+            }
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        for (int i = 1; i < args.length; i++) {
+            if (!args[i].startsWith("p/") && !args[i].startsWith("e/")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Extracts the target's index from the raw delete person args string
      *
@@ -509,6 +556,10 @@ public class AddressBook {
      */
     private static int extractTargetIndexFromDeletePersonArgs(String rawArgs) {
         return Integer.parseInt(rawArgs.trim());
+    }
+
+    private static int extractTargetIndexFromEditPersonArgs(String rawArgs) {
+        return Integer.parseInt(rawArgs.trim().split(" ")[0]);
     }
 
     /**
@@ -751,6 +802,17 @@ public class AddressBook {
      */
     private static void addPersonToAddressBook(Map<PersonProperty, String> person) {
         ALL_PERSONS.add(person);
+        savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+    }
+
+    private static void editPerson(Map<PersonProperty, String> person, String[] args) {
+        for (int i = 1; i < args.length; i++) {
+            if (args[i].startsWith(PERSON_DATA_PREFIX_PHONE)) {
+                person.replace(PersonProperty.PHONE, args[i].substring(PERSON_DATA_PREFIX_PHONE.length()));
+            } else if (args[i].startsWith(PERSON_DATA_PREFIX_EMAIL)) {
+                person.replace(PersonProperty.EMAIL, args[i].substring(PERSON_DATA_PREFIX_EMAIL.length()));
+            }
+        }
         savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
     }
 
@@ -1056,6 +1118,7 @@ public class AddressBook {
                 + getUsageInfoForViewCommand() + LS
                 + getUsageInfoForDeleteCommand() + LS
                 + getUsageInfoForClearCommand() + LS
+                + getUsageInfoForEditCommand() + LS
                 + getUsageInfoForExitCommand() + LS
                 + getUsageInfoForHelpCommand();
     }
@@ -1124,6 +1187,14 @@ public class AddressBook {
     private static String getUsageInfoForExitCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_EXIT_WORD, COMMAND_EXIT_DESC)
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
+    }
+
+    /**
+     * Returns the string for showing 'edit' command usage instruction
+     */
+    private static String getUsageInfoForEditCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_EDIT_WORD, COMMAND_EDIT_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EDIT_EXAMPLE) + LS;
     }
 
     /**
