@@ -81,6 +81,23 @@ Returns `John Doe` but not `john`
 * `find Betsy Tim John` +
 Returns any person having names `Betsy`, `Tim`, or `John`
 
+
+=== Editing a person by keyword `edit`
+
+
+Edits a person with name that matches the given name with the given parameters. +
+Format: `edit INDEX [p/NEWPHONE] [e/NEWEMAIL]
+
+[NOTE]
+====
+The index refers to the index numbers shown in the most recent listing.
+====
+
+Examples:
+
+* `edit 1 p/123` +
+Changes the phone number of the 1st person in the address book to 123.
+
 === Deleting a person: `delete`
 
 Deletes the specified version from the address book. +
