@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 
 /*
  * NOTE : =============================================================
@@ -412,6 +411,13 @@ public class AddressBook {
         return getMessageForSuccessfulAddPerson(personToAdd);
     }
 
+    /**
+     * Edits a person (specified by the command args) to the address book.
+     * The entire command arguments contains the index of the person along with the information to be updated.
+     *
+     * @param commandArgs full command args string from the user
+     * @return feedback display message for the operation result
+     */
     private static String executeEditPerson(String commandArgs) {
         if (!isEditPersonArgsValid(commandArgs)) {
             return getMessageForInvalidCommandInput(COMMAND_EDIT_WORD, getUsageInfoForEditCommand());
@@ -437,9 +443,14 @@ public class AddressBook {
                 getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
     }
 
-    private static String getMessageForSuccessfulEditPerson(Map<PersonProperty, String> addedPerson) {
+    /**
+     * Constructs a feedback message for a successful edit person command execution.
+     * @param editedPerson the person who was successfully edited
+     * @return #executeEditPerson(String)
+     */
+    private static String getMessageForSuccessfulEditPerson(Map<PersonProperty, String> editedPerson) {
         return String.format(MESSAGE_EDITED,
-                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
+                getNameFromPerson(editedPerson), getPhoneFromPerson(editedPerson), getEmailFromPerson(editedPerson));
     }
 
     /**
@@ -527,6 +538,11 @@ public class AddressBook {
         }
     }
 
+    /**
+     * Checks validity of edit person argument string's format.
+     * @param rawArgs raw command args string for the edit person command
+     * @return whether the input args string is valid
+     */
     private static boolean isEditPersonArgsValid(String rawArgs) {
         String[] args = rawArgs.trim().split(" ");
         if (args.length < 2) {
@@ -558,6 +574,11 @@ public class AddressBook {
         return Integer.parseInt(rawArgs.trim());
     }
 
+    /**
+     * Extracts the target's index from the raw edit person args string
+     * @param rawArgs raw command args string for the edit person command
+     * @return extracted index
+     */
     private static int extractTargetIndexFromEditPersonArgs(String rawArgs) {
         return Integer.parseInt(rawArgs.trim().split(" ")[0]);
     }
@@ -805,6 +826,11 @@ public class AddressBook {
         savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
     }
 
+    /**
+     * Edits the person in the address book according to the given args. Saves changes to storage file.
+     * @param person person to edit
+     * @param args changes to make to the person
+     */
     private static void editPerson(Map<PersonProperty, String> person, String[] args) {
         for (int i = 1; i < args.length; i++) {
             if (args[i].startsWith(PERSON_DATA_PREFIX_PHONE)) {
